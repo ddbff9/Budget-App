@@ -1,6 +1,9 @@
 # This entrypoint file to be used in development. Start by reading README.md
 import budget
-from budget import create_spend_chart
+try:
+  from budget import create_spend_chart
+except:
+    print("Not built yet")
 from unittest import main
 
 food = budget.Category("Food")
@@ -9,7 +12,10 @@ food.withdraw(10.15, "groceries")
 food.withdraw(15.89, "restaurant and more food for dessert")
 print(food.get_balance())
 clothing = budget.Category("Clothing")
-food.transfer(50, clothing)
+try:
+  food.transfer(50, clothing)
+except:
+    print("Not Built Yet")
 clothing.withdraw(25.55)
 clothing.withdraw(100)
 auto = budget.Category("Auto")
@@ -19,7 +25,10 @@ auto.withdraw(15)
 print(food)
 print(clothing)
 
-print(create_spend_chart([food, clothing, auto]))
+try:
+  print(create_spend_chart([food, clothing, auto]))
+except:
+  print("Not Built Yet")
 
 # Run unit tests automatically
 main(module='test_module', exit=False)

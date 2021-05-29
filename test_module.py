@@ -1,6 +1,9 @@
 import unittest
 import budget
-from budget import create_spend_chart
+try:
+    from budget import create_spend_chart
+except:
+    print("Not Built Yet")
 
 
 class UnitTests(unittest.TestCase):
