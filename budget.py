@@ -1,3 +1,5 @@
+#********************************************************
+import itertools
 class Category:
 
   #Method to determine how many stars are needed in title of category report.
@@ -101,32 +103,57 @@ class Category:
     else:
       return False
 
-  
-
   #Returns budget category balance when called.
   def get_balance(self):
     return self.balance
   
-  try:
-    def create_spend_chart(categories):
-      pass
-  except:
-    "Not ready yet"
+#********************************************************
 
+def create_spend_chart(categories = False):
 
+  category_list = []
+  new_category_list = []
 
+  y_list = ["100|", " 90|", " 80|", " 70|", " 60|", " 50|", " 40|", " 30|", " 20|", " 10|", "  0|"]
   
-  
+  report_list = []
+  cat_length = 0
 
-# food = Category("Food")
-# entertainment = Category("Entertainment")
+  print(len(categories))
 
-# food.deposit(1000,"initial deposit")
-# food.withdraw(10.15,"groceries")
-# food.withdraw(15.89,"restaurant and more food dont you know")
-# food.transfer(50,"Entertainment")
-# food.transfer(100,entertainment)
-# print(str(food))
-# print(str(entertainment))
+  for x in range(len(categories)):
+    category_list.append(str(categories[x].name))
+    
+  print("Percentage spent by category") 
+
+  print(*y_list,sep="\n")
+  print("    " + "---"*len(categories))
+
+  for x in category_list:
+    if len(x) > cat_length:
+      cat_length = len(x) 
+
+  for x in category_list:
+    space_length = cat_length - len(x)
+    new_category_list.append(x + " " * space_length)
+      
+  for i in range(cat_length):
+    for x in new_category_list:      
+      print(x[i] + "   ",end="")
+    print()
 
 
+#Test Scenario
+#**************************************
+food = Category("Food")
+entertainment = Category("Entertainment")
+business = Category("Business")
+
+food.deposit(900, "deposit")
+entertainment.deposit(900, "deposit")
+business.deposit(900, "deposit")
+food.withdraw(105.55)
+entertainment.withdraw(33.40)
+business.withdraw(10.99)
+
+create_spend_chart([business,food,entertainment])
