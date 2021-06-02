@@ -1,5 +1,4 @@
 #********************************************************
-import itertools
 class Category:
 
   #Method to determine how many stars are needed in title of category report.
@@ -15,57 +14,16 @@ class Category:
 
   #Method that will print out the budget report when Cateogry name is called.
   def __str__(self):
-      line_list = []
- 
-    #Cleans up ledger entries to print out a budget report.
-    #******************************************************
 
-      for x in range(len(self.ledger)):
-        
-        #Splits each line in the ledger.
-        line = str(self.ledger[x]).split("'")
-        
-        #Cleans up the description.
-        desc = line[5].strip("','}")
-
-        #Limits printing description out to only 23 characters.
-        short_desc = desc[:23]
-
-        #Cleans up the amount.
-        amt = line[2].strip(",:, ")
-
-        #Formats amount to display to two decimal places.
-        amt = "{:.2f}".format(float(amt))
-      
-      #Creates a list of lines to report for category.
-      #***********************************************
-
-        #Calculates the number of spaces needed to make the line 30 characters long.
-        space_len = 30 - len(short_desc) - len(amt)
-        
-        #Concatenates the description and amount into a 30 character line.
-        whole_line = str(short_desc) + " " * space_len + str(amt)
-        
-        #Appends the line_list with the whole line entry.
-        line_list.append(whole_line)
-      
-    #Creates budget report for category
-    #**********************************
-
-      #Creates the Title Row ***********Category***********
-      title = "*" * Category.get_stars(self) + self.name + "*" * Category.get_stars(self)
-
-      #Joins all lines in line_list for the Category budget report.
-      lines = "\n".join(line_list)
-
-      #Creates the Total amount for the Category budget report.
-      total_line = "Total: " + str(self.balance)
-
-      return  str(title) + "\n" + lines + "\n" + total_line
+    output = self.name.center(30, "*") + "\n"
+    for item in self.ledger:
+      output += f"{item['description'][:23].ljust(23)}{format(item['amount'],'.2f').rjust(7)}\n"
+    output += f"Total: {format(self.get_balance(),'.2f')}"
+    return output
 
   #Ensures that an overdraft doesn't occur.
   def check_funds(self, amount):
-    if self.balance - amount >=0:
+    if amount <= self.get_balance():
       return True
     else:
       return False
@@ -109,51 +67,52 @@ class Category:
   
 #********************************************************
 
-def create_spend_chart(categories = False):
+def create_spend_chart(categories):
+  category_names = []
+  spent = []
+  spent_percentages = []
 
-  category_list = []
-  new_category_list = []
+  for category in categories:
+    total = 0
+    for item in category.ledger:
+      if item['amount'] < 0:
+        total -= item['amount']
+    spent.append(round(total, 2))
+    category_names.append(category.name)
 
-  y_list = ["100|", " 90|", " 80|", " 70|", " 60|", " 50|", " 40|", " 30|", " 20|", " 10|", "  0|"]
-  
-  report_list = []
-  cat_length = 0
+  for amount in spent:
+    spent_percentages.append(round(amount / sum(spent), 2)*100)
 
-  print(len(categories))
+  graph = "Percentage spent by category\n"
 
-  for x in range(len(categories)):
-    category_list.append(str(categories[x].name))
-    
-  print("Percentage spent by category") 
-
-  print(*y_list,sep="\n")
-  print("    " + "---"*len(categories))
-
-  for x in category_list:
-    if len(x) > cat_length:
-      cat_length = len(x) 
-
-  for x in category_list:
-    space_length = cat_length - len(x)
-    new_category_list.append(x + " " * space_length)
-      
-  for i in range(cat_length):
-    for x in new_category_list:      
-      print(x[i] + "   ",end="")
-    print()
+  labels = range(100, -10, -10)
 
 
-#Test Scenario
-#**************************************
-food = Category("Food")
-entertainment = Category("Entertainment")
-business = Category("Business")
+  for label in labels:
+    graph += str(label).rjust(3) + "| "
+    for percent in spent_percentages:
+      if percent >= label:
+        graph += "o  "
+      else:
+        graph += "   "
+    graph += "\n"
 
-food.deposit(900, "deposit")
-entertainment.deposit(900, "deposit")
-business.deposit(900, "deposit")
-food.withdraw(105.55)
-entertainment.withdraw(33.40)
-business.withdraw(10.99)
+  graph += "    ----" + ("---" * (len(category_names) - 1))
+  graph += "\n     "
 
-create_spend_chart([business,food,entertainment])
+  longest_name_length = 0
+
+  for name in category_names:
+    if longest_name_length < len(name):
+      longest_name_length = len(name)
+
+  for i in range(longest_name_length):
+    for name in category_names:
+      if len(name) > i:
+        graph += name[i] + "  "
+      else:
+        graph += "   "
+    if i < longest_name_length-1:
+      graph += "\n     "
+
+  return graph
